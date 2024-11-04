@@ -1,0 +1,39 @@
+.app-container {
+    max-width: 100%;
+    margin: auto;
+    padding: 20px;
+  }
+  
+  .currency-form, .currency-requests {
+    margin-bottom: 20px;
+  }
+
+  .box{
+    width: 50%;
+    margin: auto;
+    margin-top: 60px;
+  }
+
+  .tab{
+   margin-top: 10px; 
+  }  
+
+  table {
+    width: 50%;
+    border-collapse: collapse;
+    margin: auto;
+    border-radius: 10px;
+    background-color: #bababa;
+    color: rgb(17, 17, 17);
+}
+
+th, td {
+    text-align: left;
+    padding: 12px 20px 12px 20px;
+    font-size: 20px;
+  }
+  
+  .error {
+    color: red;
+  }
+  

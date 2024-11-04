@@ -1,0 +1,22 @@
+<div class="currency-requests">
+    <div class="box">
+        <h2>Historia zapytań</h2>
+    </div>
+    <div class="tab">
+        <table>
+            <tr>
+                <th>Waluta</th>
+                <th>Imię i Nazwisko</th>
+                <th>Data</th>
+                <th>Wartość</th>
+            </tr>
+            <tr *ngFor="let request of requests">
+                <td>{{ request.currency }}</td>
+                <td>{{ request.name }}</td>
+                <td>{{ request.requestDate | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+                <td>{{ request.currencyValue }}</td>
+            </tr>
+      </table>
+    </div>
+  </div>
+  

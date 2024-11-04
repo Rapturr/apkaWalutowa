@@ -1,0 +1,16 @@
+<div class="currency-form">
+  <h1>Sprawdź wybrany kurs waluty</h1>
+ 
+   <div class="wrap"> 
+     <input type="text" [(ngModel)]="name" placeholder="Imię i nazwisko"> 
+     <input type="text" [(ngModel)]="currency" placeholder="np. EUR"> </div>
+  
+   <div class="wrap"><button (click)="getCurrencyValue()">Pobierz kurs</button></div>
+
+  <div *ngIf="result !== null" class="result">
+    <p>Aktualny kurs: {{ result }}</p>
+  </div>
+  <div *ngIf="errorMessage" class="error">
+    <p>{{ errorMessage }}</p>
+  </div>
+</div>
