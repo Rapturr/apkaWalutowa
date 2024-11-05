@@ -10,7 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -18,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -63,6 +61,56 @@ public class CurrencyServiceTest {
         verify(repository, times(1)).findAll();
     }
 
+    @Test
+    public void testGetCurrencyValue_ValidCurrency_ReturnsValue() {
+        // Mockowanie odpowiedzi z NBP API
+        Map<String, Object> rate = Map.of("code", "EUR", "mid", 4.3607);
+        Map<String, Object> response = Map.of("rates", List.of(rate));
 
+        lenient().when(restTemplate.getForObject(NBP_API_URL, Map[].class))
+                .thenReturn(new Map[]{response});
+
+        // Testowanie poprawnego zwrócenia wartości waluty
+        double result = currencyService.getCurrencyValue("EUR");
+        assertEquals(4.3607, result, "Powinien zwrócić kurs waluty EUR równy 4.3607");
+    }
+
+    @Test
+    public void testGetCurrencyValue_InvalidCurrency_ThrowsException() {
+        // Mockowanie odpowiedzi z NBP API z pustą listą walut
+        Map<String, Object> response = Map.of("rates", List.of());
+
+        lenient().when(restTemplate.getForObject(NBP_API_URL, Map[].class))
+                .thenReturn(new Map[]{response});
+
+        // Testowanie wyjątku przy nieistniejącej walucie
+        assertThrows(ResponseStatusException.class, () -> {
+            currencyService.getCurrencyValue("XYZ");
+        }, "Powinien zgłosić wyjątek ResponseStatusException dla nieistniejącej waluty");
+    }
+
+    @Test
+    public void testSaveRequest_ValidCurrency_SavesRequest() {
+        // Mockowanie odpowiedzi z NBP API
+        Map<String, Object> rate = Map.of("code", "EUR", "mid", 4.3607);
+        Map<String, Object> response = Map.of("rates", List.of(rate));
+
+        lenient().when(restTemplate.getForObject(NBP_API_URL, Map[].class))
+                .thenReturn(new Map[]{response});
+
+        // Mockowanie zapisu do repozytorium
+        CurrencyRequest currencyRequest = new CurrencyRequest("EUR", "Jan Nowak", 4.3607);
+        when(repository.save(any(CurrencyRequest.class))).thenReturn(currencyRequest);
+
+        // Testowanie metody zapisu
+        CurrencyRequest savedRequest = currencyService.saveRequest("EUR", "Jan Nowak");
+
+        assertNotNull(savedRequest, "Zapisane żądanie nie powinno być null");
+        assertEquals("EUR", savedRequest.getCurrency(), "Kod waluty powinien być równy EUR");
+        assertEquals("Jan Nowak", savedRequest.getName(), "Imię użytkownika powinno być Jan Nowak");
+        assertEquals(4.3607, savedRequest.getCurrencyValue(), "Wartość kursu powinna wynosić 4.3607");
+
+        verify(repository, times(1)).save(any(CurrencyRequest.class));
+    }
 
 }
