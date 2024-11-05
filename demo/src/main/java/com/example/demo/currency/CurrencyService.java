@@ -17,19 +17,27 @@ public class CurrencyService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final String NBP_API_URL = "http://api.nbp.pl/api/exchangerates/tables/A?format=json";
 
-    public double getCurrencyValue(String currency) {
-        try {
-            Map<String, Object>[] response = restTemplate.getForObject(NBP_API_URL, Map[].class);
+    public double getCurrencyValue(String currencyCode) {
+        String url = "http://api.nbp.pl/api/exchangerates/tables/A?format=json";
+
+        Map<String, Object>[] response = restTemplate.getForObject(url, Map[].class);
+
+        if (response != null && response.length > 0) {
             List<Map<String, Object>> rates = (List<Map<String, Object>>) response[0].get("rates");
-            return rates.stream()
-                    .filter(rate -> rate.get("code").equals(currency))
-                    .map(rate -> (double) rate.get("mid"))
-                    .findFirst()
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Currency not found"));
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error retrieving currency data");
+
+            for (Map<String, Object> rate : rates) {
+                if (currencyCode.equals(rate.get("code"))) {
+                    return (Double) rate.get("mid");
+                }
+            }
         }
+
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Waluta " + currencyCode + " nie została znaleziona");
     }
+
+
+
+
 
     public CurrencyRequest saveRequest(String currency, String name) {
         double value = getCurrencyValue(currency);
